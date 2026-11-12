@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gate Sensor Simulator</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 50px; background: #f4f4f9; }
+    button { font-size: 20px; padding: 15px 30px; margin: 10px; cursor: pointer; border: none; border-radius: 8px; color: white; }
+    .in { background-color: #28a745; }
+    .out { background-color: #dc3545; }
+    .reset { background-color: #6c757d; }
+    #status { margin-top: 20px; color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Virtual Gate Sensor (Controller)</h1>
+  <p>Simulate visitors walking through the entrance:</p>
+  
+  <button class="in" onclick="sendEvent('increment')">+1 Visitor Enter</button>
+  <button class="out" onclick="sendEvent('decrement')">-1 Visitor Exit</button>
+  <button class="reset" onclick="sendEvent('reset')">Reset Count</button>
+
+  <p id="status">Ready</p>
+
+  <script>
+    const API_URL = 'https://wqn4u6ul49.execute-api.us-east-1.amazonaws.com/visitor';
+
+    async function sendEvent(actionType) {
+      document.getElementById('status').innerText = 'Sending signal to AWS...';
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: actionType })
+        });
+        const data = await res.json();
+        document.getElementById('status').innerText = `Success! Updated count on server: ${data.count}`;
+      } catch (err) {
+        document.getElementById('status').innerText = 'Error connecting to AWS.';
+      }
+    }
+  </script>
+</body>
+</html>
